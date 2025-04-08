@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from langdetect import detect, detect_langs, DetectorFactory
 
 # Tutarlı sonuçlar için seed ayarla
-#DetectorFactory.seed = 0
+DetectorFactory.seed = 0
 
 # .env dosyasını yükle
 load_dotenv()
