@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangi Dil API - Metin Dili Algılama Servisi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        danger: '#ef4444',
+                        success: '#22c55e',
+                        warning: '#f59e0b',
+                    }
+                }
+            }
+        }
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-JEMSPK75FJ');        
+    </script>
+</head>
+
+<body class="min-h-screen">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Page Content -->
+    <div id="page-content" style="display: none;">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <header class="text-center mb-10">
+                <h1 class="text-4xl font-bold text-dark mb-2">Hangi Dil API</h1>
+                <h2 class="text-2xl text-secondary">Metin Dili Algılama API'si</h2>
+            </header>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">API Durumu</h3>
+                </div>
+                <div class="p-6">
+                    <p class="flex items-center mb-2">
+                        <strong class="mr-2">Durum:</strong>
+                        <span class="status-indicator"></span>
+                        <span class="status-text">Kontrol ediliyor...</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">Hızlı Başlangıç</h3>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4">Hangi Dil API, metinlerin hangi dilde yazıldığını tespit etmek için kullanılan bir servistir. API'yi kullanmak için:</p>
+
+                    <h4 class="text-lg font-medium mt-6 mb-2">API Key olmadan:</h4>
+                    <pre class="code-block"><code>curl -X POST \
+  http://hangidil.apimapi.com/predict \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Bu bir örnek cümledir."}'</code></pre>
+
+                    <h4 class="text-lg font-medium mt-6 mb-2">API Key ile:</h4>
+                    <pre class="code-block"><code>curl -X POST \
+  http://hangidil.apimapi.com/predict \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: sizin_api_keyiniz" \
+  -d '{"text": "Bu bir örnek cümledir."}'</code></pre>
+
+                    <div class="bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200 dark:bg-opacity-30 mt-6 p-4 rounded-lg">
+                        <strong class="font-medium">Not:</strong> API Key olmadan kullanımda aylık 10.000 token ve 15
+                        dakikalık sürede 15 istek limiti vardır.
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">Test Et</h3>
+                </div>
+                <div class="p-6" id="test-area">
+                    <div class="mb-4">
+                        <label for="test-text" class="block mb-2 text-sm font-medium text-gray-700">Dilini tespit etmek istediğiniz metin:</label>
+                        <textarea
+                            class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200"
+                            id="test-text" rows="3"
+                            placeholder="Dilini tespit etmek istediğiniz metni buraya yazın..."></textarea>
+                    </div>
+                    <button
+                        class="px-3 py-1.5 text-sm bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        id="test-button">Dili Tespit Et</button>
+                    <div class="mt-4" id="result-area"></div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">Örnek İstek ve Yanıt</h3>
+                </div>
+                <div class="p-6">
+                    <h4 class="text-lg font-medium mb-2">İstek:</h4>
+                    <pre class="code-block"><code>{
+  "text": "Bu bir örnek cümledir."
+}</code></pre>
+
+                    <h4 class="text-lg font-medium mt-6 mb-2">Yanıt:</h4>
+                    <pre class="code-block"><code>{
+  "text": "Bu bir örnek cümledir.",
+  "detected_language": "tr",
+  "language_probabilities": [
+    {
+      "lang": "tr",
+      "probability": 0.9854
+    },
+    {
+      "lang": "az",
+      "probability": 0.0146
+    }
+  ],
+  "usage_info": {
+    "admin_request": false,
+    "tokens_remaining": 9995,
+    "tokens_used": 5,
+    "unlimited": false,
+    "using_api_key": false
+  }
+}</code></pre>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">API Endpointleri</h3>
+                </div>
+                <div class="p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Endpoint</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Metod</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Açıklama</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/health</code></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">GET</td>
+                                    <td class="px-6 py-4">API durumunu kontrol eder.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/predict</code>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">POST</td>
+                                    <td class="px-6 py-4">Tek bir metin için dil tespiti yapar. <code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">{"text": "Metin içeriği"}</code>
+                                        formatında istek gönderilmelidir.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/batch_predict</code>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">POST</td>
+                                    <td class="px-6 py-4">Birden fazla metin için dil tespiti yapar. <code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">{"texts": ["Metin 1", "Metin 2"]}</code>
+                                        formatında istek gönderilmelidir.</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap"><code
+                                            class="bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">/usage_info</code>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">GET</td>
+                                    <td class="px-6 py-4">API kullanım bilgilerini gösterir (token kullanımı, kalan
+                                        token sayısı, vb.)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">Desteklenen Diller</h3>
+                </div>
+                <div class="p-6">
+                    <p class="mb-4">API, aşağıdaki 55 dili desteklemektedir (ISO 639-1 kodları):</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                            <ul class="list-disc list-inside">
+                                <li>Afrikaans (af)</li>
+                                <li>Arapça (ar)</li>
+                                <li>Bulgarca (bg)</li>
+                                <li>Bengalce (bn)</li>
+                                <li>Katalanca (ca)</li>
+                                <li>Çekçe (cs)</li>
+                                <li>Galce (cy)</li>
+                                <li>Danca (da)</li>
+                                <li>Almanca (de)</li>
+                                <li>Yunanca (el)</li>
+                                <li>İngilizce (en)</li>
+                                <li>İspanyolca (es)</li>
+                                <li>Estonca (et)</li>
+                                <li>Farsça (fa)</li>
+                                <li>Fince (fi)</li>
+                                <li>Fransızca (fr)</li>
+                                <li>Güceratça (gu)</li>
+                                <li>İbranice (he)</li>
+                                <li>Hintçe (hi)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <ul class="list-disc list-inside">
+                                <li>Hırvatça (hr)</li>
+                                <li>Macarca (hu)</li>
+                                <li>Endonezce (id)</li>
+                                <li>İtalyanca (it)</li>
+                                <li>Japonca (ja)</li>
+                                <li>Kannada (kn)</li>
+                                <li>Korece (ko)</li>
+                                <li>Litvanca (lt)</li>
+                                <li>Letonca (lv)</li>
+                                <li>Makedonca (mk)</li>
+                                <li>Malayalam (ml)</li>
+                                <li>Marathi (mr)</li>
+                                <li>Nepalce (ne)</li>
+                                <li>Felemenkçe (nl)</li>
+                                <li>Norveççe (no)</li>
+                                <li>Pencapça (pa)</li>
+                                <li>Lehçe (pl)</li>
+                                <li>Portekizce (pt)</li>
+                                <li>Romence (ro)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <ul class="list-disc list-inside">
+                                <li>Rusça (ru)</li>
+                                <li>Slovakça (sk)</li>
+                                <li>Slovence (sl)</li>
+                                <li>Somalice (so)</li>
+                                <li>Arnavutça (sq)</li>
+                                <li>İsveççe (sv)</li>
+                                <li>Svahili (sw)</li>
+                                <li>Tamil (ta)</li>
+                                <li>Telugu (te)</li>
+                                <li>Tay dili (th)</li>
+                                <li>Tagalog (tl)</li>
+                                <li>Türkçe (tr)</li>
+                                <li>Ukraynaca (uk)</li>
+                                <li>Urduca (ur)</li>
+                                <li>Vietnamca (vi)</li>
+                                <li>Çince (Basit) (zh-cn)</li>
+                                <li>Çince (Geleneksel) (zh-tw)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-xl font-semibold text-dark">API Key Edinme</h3>
+                </div>
+                <div class="p-6">
+                    <p>Daha yüksek limitler ve daha güvenilir kullanım için API key edinebilirsiniz. API key almak için
+                        lütfen iletişime geçin: <a class="font-medium text-blue-600 hover:underline"
+                            href="mailto:info@apimapi.com">info@apimapi.com</a></p>
+                </div>
+            </div>
+
+            <footer class="text-center py-6 text-gray-600 text-sm">
+                <p>© 2025 Hangi Dil API. Tüm hakları saklıdır.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Hide loading overlay when page is fully loaded
+        window.addEventListener('load', function () {
+            document.getElementById('loading-overlay').style.opacity = '0';
+            document.getElementById('page-content').style.display = 'block';
+
+            setTimeout(function () {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }, 500);
+        });
+    </script>
+    <script src="/static/js/index.js"></script>
+    <script src="/static/js/theme.js"></script>
+</body>
+
+</html>
